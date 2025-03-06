@@ -6,6 +6,10 @@ from django.views import generic
 
 from .models import Choice, Question
 
+# For the API
+from rest_framework import viewsets
+from .serializers import QuestionSerializer, ChoiceSerializer
+
 
 class IndexView(generic.ListView):
     template_name = "polls/index.html"
@@ -48,3 +52,13 @@ def vote(request, question_id):
         # user hits the Back button.
         return HttpResponseRedirect(reverse("polls:results", args=(question.id,)))
 
+
+# API Views
+
+class QuestionViewSet(viewsets.ModelViewSet):
+    queryset = Question.objects.all()
+    serializer_class = QuestionSerializer
+
+class ChoiceViewSet(viewsets.ModelViewSet):
+    queryset = Choice.objects.all()
+    serializer_class = ChoiceSerializer
