@@ -1,35 +1,37 @@
+# General purposes
 from django.db.models import F
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render
+from django.http import JsonResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.views import generic
-
 from .models import Choice, Question
 
-# For the API
+# Auth purposes
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+
+# API purposes
 from rest_framework import viewsets
 from .serializers import QuestionSerializer, ChoiceSerializer
 
 
-class IndexView(generic.ListView):
-    template_name = "polls/index.html"
-    context_object_name = "latest_question_list"
+@login_required
+def index(request):
+    latest_question_list = Question.objects.order_by('-pub_date')[:5]
+    return render(request, 'polls/index.html', {'latest_question_list': latest_question_list})
 
-    def get_queryset(self):
-        """Return the last five published questions."""
-        return Question.objects.order_by("-pub_date")[:5]
+@login_required
+def detail(request, question_id):
+    question = get_object_or_404(Question, pk=question_id)
+    return render(request, 'polls/detail.html', {'question': question})
 
+@login_required
+def results(request, question_id):
+    question = get_object_or_404(Question, pk=question_id)
+    return render(request, 'polls/results.html', {'question': question})
 
-class DetailView(generic.DetailView):
-    model = Question
-    template_name = "polls/detail.html"
-
-
-class ResultsView(generic.DetailView):
-    model = Question
-    template_name = "polls/results.html"
-
-
+@login_required
 def vote(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
     try:
@@ -51,6 +53,19 @@ def vote(request, question_id):
         # with POST data. This prevents data from being posted twice if a
         # user hits the Back button.
         return HttpResponseRedirect(reverse("polls:results", args=(question.id,)))
+
+# Register
+def register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()  # Creates new user
+            username = form.cleaned_data.get('username')
+            messages.success(request, f'Cuenta creada para {username}. ¡Ahora puedes iniciar sesión!')
+            return redirect('polls:login')  # Redirige al inicio de sesión
+    else:
+        form = UserCreationForm()
+    return render(request, 'polls/register.html', {'form': form})
 
 
 

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Polls</title>
+</head>
+<body>
+    <nav>
+        {% if user.is_authenticated %}
+            <p>Hola, {{ user.username }}!
+            <form action="{% url 'polls:logout' %}" method="post">
+                {% csrf_token %}
+                <button type="submit">Cerrar sesión</button>
+            </form>
+        {% else %}
+            <p><a href="{% url 'polls:login' %}">Iniciar sesión</a> | <a href="{% url 'polls:register' %}">Registrarse</a></p>
+        {% endif %}
+    </nav>
+    {% block content %}{% endblock %}
+</body>
+</html>
