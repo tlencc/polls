@@ -53,7 +53,8 @@ def vote(request, question_id):
         return HttpResponseRedirect(reverse("polls:results", args=(question.id,)))
 
 
-# API Views
+
+# API Generic Views
 
 class QuestionViewSet(viewsets.ModelViewSet):
     queryset = Question.objects.all()
@@ -62,3 +63,13 @@ class QuestionViewSet(viewsets.ModelViewSet):
 class ChoiceViewSet(viewsets.ModelViewSet):
     queryset = Choice.objects.all()
     serializer_class = ChoiceSerializer
+
+
+# API Raw Views
+
+
+def question_list(request):
+
+    questions = Question.objects.all()
+    serializer = QuestionSerializer(questions, many=True)
+    return JsonResponse(serializer.data, safe=False)

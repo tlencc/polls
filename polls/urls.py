@@ -14,4 +14,5 @@ urlpatterns = [
     path("<int:pk>/results/", views.ResultsView.as_view(), name="results"),
     path("<int:question_id>/vote/", views.vote, name="vote"),
     path('api/', include(router.urls)),  # API path
+    path('api1/', views.question_list)  # Raw API path
 ]
